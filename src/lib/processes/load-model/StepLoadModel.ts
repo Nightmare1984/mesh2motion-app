@@ -1,8 +1,8 @@
 import { UI } from '../../UI.ts'
 import { ModelZipLoader } from './ModelZipLoader.ts'
+import { CustomFBXLoader, type FBXResults } from './CustomFBXLoader.ts'
 import { Box3 } from 'three/src/math/Box3.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js'
 
 import { Scene } from 'three/src/scenes/Scene.js'
 import { Mesh } from 'three/src/objects/Mesh.js'
@@ -15,7 +15,7 @@ import { ModalDialog } from '../../ModalDialog.ts'
 // Note: EventTarget is a built-ininterface and do not need to import it
 export class StepLoadModel extends EventTarget {
   private readonly gltf_loader = new GLTFLoader()
-  private readonly fbx_loader = new FBXLoader()
+  private readonly custom_fbx_loader: CustomFBXLoader = new CustomFBXLoader()
   private readonly ui: UI = UI.getInstance()
   private original_model_data: Scene = new Scene()
   private final_mesh_data: Scene = new Scene()
@@ -26,6 +26,10 @@ export class StepLoadModel extends EventTarget {
   private readonly material_list: Material[] = []
 
   private _added_event_listeners: boolean = false
+
+  // this can happen when images are not loading. this
+  // will mess up model and need to just replace the entire material
+  private mesh_has_broken_material: boolean = false
 
   // for debugging, let's count these to help us test performance things better
   vertex_count = 0
@@ -63,6 +67,13 @@ export class StepLoadModel extends EventTarget {
         const geometry_to_add: BufferGeometry = (child as Mesh).geometry.clone()
         geometry_to_add.name = child.name
         this.geometry_list.push(geometry_to_add)
+
+        // material is broken somehow, so just use a normal material to help communicate this
+        if (this.mesh_has_broken_material) {
+          const new_material: Material = new MeshNormalMaterial()
+          this.material_list.push(new_material)
+          return
+        }
 
         const new_material: Material = (child as Mesh).material.clone()
         this.material_list.push(new_material)
@@ -150,12 +161,7 @@ export class StepLoadModel extends EventTarget {
 
   public load_model_file (model_file_path: string | ArrayBuffer | null, file_extension: string): void {
     if (file_extension === 'fbx') {
-      console.log('Loading FBX model:', model_file_path)
-      this.fbx_loader.load(model_file_path as string, (fbx) => {
-        const loaded_scene: Scene = new Scene()
-        loaded_scene.add(fbx)
-        this.process_loaded_scene(loaded_scene)
-      })
+      this.load_fbx_file(model_file_path)
     } else if (file_extension === 'glb') {
       this.gltf_loader.load(model_file_path as string, (gltf) => {
         const loaded_scene: Scene = gltf.scene
@@ -167,6 +173,26 @@ export class StepLoadModel extends EventTarget {
     } else {
       console.error('Unsupported file format to load. Only acccepts FBX, (ZIP)GLTF+BIN, GLB:', model_file_path)
     }
+  }
+
+  private load_fbx_file (model_file_path: string | ArrayBuffer | null): void {
+    if (typeof model_file_path !== 'string') {
+      console.warn('something weird happened and FBX is being loaded that is not a filepath for a string:', model_file_path)
+      return
+    }
+
+    // console.log('Loading FBX model:', model_file_path)
+    this.custom_fbx_loader.loadFBX(model_file_path).then((results: FBXResults) => {
+      console.log('loaded the FBX file', results)
+      this.mesh_has_broken_material = results.is_missing_dependencies
+      const loaded_scene: Scene = new Scene()
+      this.process_loaded_scene(loaded_scene)
+
+      // TODO: add the processed, cleaned up data instead of the fbx_scene directly
+      loaded_scene.add(results.fbx_scene)
+    }).catch((error) => {
+      console.warn('some type of error', error)
+    })
   }
 
   /**
