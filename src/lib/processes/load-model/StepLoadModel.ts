@@ -254,16 +254,18 @@ export class StepLoadModel extends EventTarget {
     // strip out stuff that we are not bringing into the model step
     const clean_scene_with_only_models: Scene = this.strip_out_all_unecessary_model_data(this.original_model_data)
 
-    // Some objects come in very large, which makes it harder to work with
-    // scale everything down to a max height. mutate the clean scene object
-    this.scale_model_on_import_if_extreme(clean_scene_with_only_models)
-
     // loop through each child in scene and reset rotation
     // if we don't the skinning process doesn't take rotation into account
     // and creates odd results
     clean_scene_with_only_models.traverse((child) => {
       child.rotation.set(0, 0, 0)
+      child.scale.set(1, 1, 1) 
     })
+
+    // Some objects come in very large, which makes it harder to work with
+    // scale everything down to a max height. mutate the clean scene object
+    this.scale_model_on_import_if_extreme(clean_scene_with_only_models)
+
 
     this.calculate_geometry_and_materials(clean_scene_with_only_models)
     this.calculate_mesh_metrics(this.geometry_list) // this needs to happen after calculate_geometry_and_materials
@@ -320,6 +322,7 @@ export class StepLoadModel extends EventTarget {
     const width = bounding_box.max.x - bounding_box.min.x
     const depth = bounding_box.max.z - bounding_box.min.z
 
+
     const largest_dimension = Math.max(height, width, depth)
 
     // if model is very large, or very small, scale it to 1.5 to help with application
@@ -341,14 +344,17 @@ export class StepLoadModel extends EventTarget {
   }
 
   private calculate_bounding_box (scene_object: Scene): Box3 {
-    // calculate all the meshes to find out the max height
-    let found_mesh: boolean = false
     let bounding_box: Box3 = new Box3()
 
     scene_object.traverse((child: Object3D) => {
-      if (child.type === 'Mesh' && !found_mesh) {
-        found_mesh = true
-        bounding_box = new Box3().setFromObject(child.parent)
+      if (child.type === 'Mesh') {
+        // see if this new object is a larger bounding box than previous
+        const test_bb = new Box3().setFromObject(child)
+        if (test_bb.max.x - test_bb.min.x > bounding_box.max.x - bounding_box.min.x ||
+            test_bb.max.y - test_bb.min.y > bounding_box.max.y - bounding_box.min.y ||
+            test_bb.max.z - test_bb.min.z > bounding_box.max.z - bounding_box.min.z) {
+          bounding_box = test_bb
+        }
       }
     })
 
