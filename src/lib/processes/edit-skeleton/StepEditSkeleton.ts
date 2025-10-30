@@ -18,6 +18,7 @@ import {
   type Camera
 } from 'three'
 import { SkinningFormula } from '../../enums/SkinningFormula.ts'
+import { SkeletonType } from '../../enums/SkeletonType.ts'
 
 /*
  * StepEditSkeleton
@@ -96,7 +97,22 @@ export class StepEditSkeleton extends EventTarget {
     return result
   }
 
-  public begin (main_scene: Scene): void {
+  private update_ui_options_on_begin(skeleton_type: SkeletonType): void {
+    // keep track of skeleton type to show/hide certain UI elements
+    // only human skeletons have the head weight correction option
+    if (this.ui.dom_use_head_weight_correction_container != null) {
+      if (skeleton_type === SkeletonType.Human) {
+        this.ui.dom_use_head_weight_correction_container.style.display = 'block'
+      } else {
+        this.ui.dom_use_head_weight_correction_container.style.display = 'none'
+        this.enable_head_weight_correction = false // force setting to false in case it was enabled before
+      }
+    }
+  }
+
+  public begin (main_scene: Scene, skeleton_type: SkeletonType): void {
+    this.update_ui_options_on_begin(skeleton_type)
+
     // show UI elemnents for editing mesh
     if (this.ui.dom_current_step_index != null) {
       this.ui.dom_current_step_index.innerHTML = '3'

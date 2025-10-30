@@ -39,6 +39,7 @@ export class UI {
   dom_transform_space_radio_group: HTMLElement | null = null
 
   // preview plane controls
+  dom_use_head_weight_correction_container: HTMLElement | null = null
   dom_preview_plane_checkbox: HTMLInputElement | null = null
   dom_preview_plane_height_input: HTMLInputElement | null = null
   dom_preview_plane_height_label: HTMLElement | null = null
@@ -123,6 +124,7 @@ export class UI {
     this.dom_transform_space_radio_group = document.querySelector('#transform-space-group')
 
     // preview plane controls
+    this.dom_use_head_weight_correction_container = document.querySelector('#use-head-weight-correction-container')
     this.dom_preview_plane_checkbox = document.querySelector('#preview-plane-checkbox')
     this.dom_preview_plane_height_input = document.querySelector('#preview-plane-height-input')
     this.dom_preview_plane_height_label = document.querySelector('#preview-plane-height-label')
