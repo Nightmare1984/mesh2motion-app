@@ -107,7 +107,7 @@ export class Mesh2MotionEngine {
       const commit_sha: string = window.CLOUDFLARE_COMMIT_SHA.slice(0, 9)
       const branch: string = window.CLOUDFLARE_BRANCH
 
-      this.ui.dom_build_version.innerHTML = `${commit_sha}-${branch}`
+      this.ui.dom_build_version.innerHTML = `git:${commit_sha}-${branch}`
     }
   }
 
