@@ -2,8 +2,9 @@
     display: inline-flex;
     flex-direction: column;
     left: 0;
-    top: 120px;
-    margin: 2rem;
+    top: 70px;
+    gap: 0;
+    margin: 1rem;
     position: fixed;
 }
 
