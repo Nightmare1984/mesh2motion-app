@@ -34,17 +34,24 @@ export class AnimationUtility {
   /// Removes position tracks from animation clips, keeping only rotation tracks.
   /// @param animation_clips - The animation clips to modify.
   /// @param preserve_root_position - Whether to keep the root position track.
-  static clean_track_data (animation_clips: AnimationClip[], preserve_root_position: boolean = false): void {
+  static clean_track_data (animation_clips: AnimationClip[]): void {
     animation_clips.forEach((animation_clip: AnimationClip) => {
       // remove all position nodes except root
       let rotation_tracks: KeyframeTrack[] = []
 
+      // does the animation clip name include "RM". This indicates a root motion clip and we can keep the root position track
+      const preserve_root_position: boolean = animation_clip.name.toLowerCase().endsWith('rm')
+
       if (preserve_root_position) {
         rotation_tracks = animation_clip.tracks
-          .filter((x: KeyframeTrack) => x.name.includes('quaternion') || x.name.toLowerCase().includes('hips.position'))
+          .filter((x: KeyframeTrack) => x.name.includes('quaternion') ||
+          x.name.toLowerCase().includes('hips.position') ||
+          x.name.toLowerCase().includes('root.position'))
+          console.log('Preserving root position for clip: ' + animation_clip.name)
       } else {
         rotation_tracks = animation_clip.tracks
-          .filter((x: KeyframeTrack) => x.name.includes('quaternion') || x.name.includes('hips.position'))
+          .filter((x: KeyframeTrack) => x.name.includes('quaternion') ||
+          x.name.toLowerCase().includes('hips.position'))
       }
 
       animation_clip.tracks = rotation_tracks // update track data
