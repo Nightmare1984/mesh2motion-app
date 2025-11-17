@@ -602,3 +602,34 @@ input[type="file"] {
     font-size: 0.8rem;
     color: var(--text-alternate);
 }
+
+/* loading progress bar for animations */
+#animation-progress-loader-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+#animation-progress-loader-container #loading-progress-bar {
+    width: 0%;
+    height: 8px;
+    background-color: var(--button-primary-bg);
+    transition: width 0.3s ease;
+    justify-content: center;
+    display: flex;
+    height: auto;
+    border: 1px solid grey;
+}
+#animation-progress-loader-container #current-file-progress-bar {
+    width: 0%;
+    height: 4px;
+    background-color: var(--button-alternate-bg);
+    transition: width 0.3s ease;
+    margin-top: 2px;
+    border: 1px solid grey;
+}
+#animation-progress-loader-container #loading-status-text {
+    font-size: 1.1rem;
+    color: var(--text-primary);     
+}

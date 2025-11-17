@@ -175,37 +175,35 @@ export class StepAnimationsListing extends EventTarget {
   }
 
   private onAnimationLoadProgress (progress: AnimationLoadProgress): void {
-    // Enhanced progress logging with granular information
-    console.log(`Loading animations: ${progress.percentage}% (${progress.loaded}/${progress.total} files completed)`)
-
-    if (progress.currentFile !== '' && progress.currentFileTotal > 0) {
-      const file_name = progress.currentFile.split('/').pop() ?? progress.currentFile
-      console.log(`  Current file: ${file_name} - ${progress.currentFileProgress}%`)
-    }
-
-    if (progress.overallBytesTotal > 0) {
-      const mb_loaded = (progress.overallBytesLoaded / (1024 * 1024)).toFixed(1)
-      const mb_total = (progress.overallBytesTotal / (1024 * 1024)).toFixed(1)
-      console.log(`  Bytes: ${mb_loaded}MB / ${mb_total}MB`)
-    }
-
-    // TODO: Update UI progress bars if you have them
-    // You can add these DOM elements to your UI and uncomment these lines
-    /*
-    if (this.ui.dom_loading_progress_bar) {
+    if (this.ui.dom_loading_progress_bar !== null) {
       this.ui.dom_loading_progress_bar.style.width = `${progress.percentage}%`
-      this.ui.dom_loading_progress_bar.textContent = `${progress.percentage}%`
+
+      const mb_loaded: string = (progress.overallBytesLoaded / (1024 * 1024)).toFixed(1)
+      const mb_total: string = (progress.overallBytesTotal / (1024 * 1024)).toFixed(1)
+      this.ui.dom_loading_progress_bar.textContent = `${mb_loaded} / ${mb_total} MB`
     }
 
-    if (this.ui.dom_current_file_progress_bar) {
+    if (this.ui.dom_current_file_progress_bar !== null) {
       this.ui.dom_current_file_progress_bar.style.width = `${progress.currentFileProgress}%`
     }
 
-    if (this.ui.dom_loading_status_text && progress.currentFile !== '') {
-      const file_name = progress.currentFile.split('/').pop() ?? progress.currentFile
-      this.ui.dom_loading_status_text.textContent = `Loading ${file_name}...`
+    // if we are done loading, we can hide the container
+    if (progress.percentage >= 100) {
+      if (this.ui.dom_animation_progress_loader_container !== null) {
+        this.ui.dom_animation_progress_loader_container.style.display = 'none'
+      }
+    } else {
+      // make sure it is visible while loading
+      if (this.ui.dom_animation_progress_loader_container !== null) {
+        this.ui.dom_animation_progress_loader_container.style.display = 'flex'
+      }
     }
-    */
+
+    // can potentially shows file name loading...not sure if we need to actually show this.
+    // if (this.ui.dom_loading_status_text !== null && progress.currentFile !== '') {
+    //   const file_name = progress.currentFile.split('/').pop() ?? progress.currentFile
+    //   this.ui.dom_loading_status_text.textContent = `Loading ${file_name}...`
+    // }
   }
 
   private update_filtered_animation_listing_ui (): void {

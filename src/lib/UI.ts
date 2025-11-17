@@ -64,6 +64,12 @@ export class UI {
   dom_mirror_animations_checkbox: HTMLInputElement | null = null
   dom_reset_a_pose_button: HTMLButtonElement | null = null
 
+  // loading progress UI controls for animations
+  dom_animation_progress_loader_container: HTMLElement | null = null
+  dom_loading_progress_bar: HTMLElement | null = null
+  dom_current_file_progress_bar: HTMLElement | null = null
+  dom_loading_status_text: HTMLElement | null = null
+
   // Animation player controls
   dom_animation_player: HTMLElement | null = null
   dom_current_animation_name: HTMLElement | null = null
@@ -165,6 +171,12 @@ export class UI {
     this.dom_import_animations_button = document.querySelector('#mirror-animations-checkbox')
     this.dom_mirror_animations_checkbox = document.querySelector('#mirror-animations-checkbox')
     this.dom_reset_a_pose_button = document.querySelector('#reset-a-pose-button')
+
+    // loading progress UI controls for animations
+    this.dom_animation_progress_loader_container = document.querySelector('#animation-progress-loader-container')
+    this.dom_loading_progress_bar = document.querySelector('#loading-progress-bar')
+    this.dom_current_file_progress_bar = document.querySelector('#current-file-progress-bar')
+    this.dom_loading_status_text = document.querySelector('#loading-status-text')
 
     // Animation player controls
     this.dom_animation_player = document.querySelector('#animation-player')
